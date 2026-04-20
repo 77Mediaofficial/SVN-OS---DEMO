@@ -1043,26 +1043,43 @@ function enterDemo(){
   window.CU_ROLE='admin';
   localStorage.setItem('demo_mode','1');
   
-  // Enable demo mode
+  // Enable demo mode banner
   enableDemoMode();
   
-  // Load app
+  // Show app
   hideAll();
   document.getElementById('app').style.display='block';
   
-  // Initialize app
-  applyPrefs();loadAccent();initAutoLock();applyCustomisation();
-  nav('dashboard');
-  setTimeout(renderTodayFocus,600);
-  setTimeout(initPushNotifications,2000);
+  // Initialize app fully
+  applyPrefs();
+  loadAccent();
+  initAutoLock();
+  applyCustomisation();
   
-  // Load sample data if not already loaded
+  // Navigate to dashboard
+  nav('dashboard');
+  
+  // Load demo data FIRST, then render
   if(!localStorage.getItem('hq_demo_loaded')){
-    setTimeout(()=>{
-      seedSampleData();
+    // Load sample data synchronously
+    seedSampleData().then(()=>{
       localStorage.setItem('hq_demo_loaded','1');
-    },1500);
+      // Force render after data is loaded
+      setTimeout(()=>{
+        nav('dashboard');
+        renderDash();
+      },500);
+    });
+  } else {
+    // Data already exists, just render
+    setTimeout(()=>{
+      renderDash();
+      renderTodayFocus();
+    },300);
   }
+  
+  // Initialize other features
+  setTimeout(initPushNotifications,2000);
 }
 
 function setLoading(msg){const l=document.getElementById('loading');if(l)l.style.display='flex';const m=document.getElementById('loading-msg');if(m)m.textContent=msg;}
@@ -1707,6 +1724,8 @@ async function importData(input){
 
 /* ── SEED DATA ── */
 async function seedSampleData(){
+  console.log('Loading demo data...');
+  
   try{
     // PROJECTS - 8 diverse projects
     await DB.insert('projects',{name:'Brand Campaign Project',client:'Demo Client A',type:'Brand Campaign',status:'In Production',budget:8500,location:'London',due_date:'2026-05-15',priority:'High',brief:'High-end brand campaign for product launch. Urban aesthetic, clean visuals.',progress:65});
@@ -1718,6 +1737,8 @@ async function seedSampleData(){
     await DB.insert('projects',{name:'Logo Redesign',client:'Startup XYZ',type:'Branding',status:'Briefing',budget:1800,location:'Remote',due_date:'2026-05-10',priority:'Medium',progress:10});
     await DB.insert('projects',{name:'Annual Report Design',client:'Finance Corp',type:'Print Design',status:'In Production',budget:6500,location:'Remote',due_date:'2026-05-25',priority:'High',progress:55});
     
+    console.log('Projects loaded');
+    
     // ENQUIRIES - 6 leads at different stages
     await DB.insert('enquiries',{name:'Sarah Johnson',email:'sarah@example.com',source:'Instagram',service:'Photography',message:'Looking for professional photography services for our product launch.',stage:'New',score:80,budget:'£2,000-3,000'});
     await DB.insert('enquiries',{name:'Michael Chen',email:'michael@example.com',source:'Referral',service:'Video Production',message:'Need a promotional video for our website.',stage:'Contacted',score:90,budget:'£5,000-8,000'});
@@ -1725,6 +1746,8 @@ async function seedSampleData(){
     await DB.insert('enquiries',{name:'James Taylor',email:'james@example.com',source:'LinkedIn',service:'Web Design',message:'E-commerce site redesign needed.',stage:'Contacted',score:75,budget:'£8,000-12,000'});
     await DB.insert('enquiries',{name:'Lucy Martinez',email:'lucy@example.com',source:'Instagram',service:'Social Content',message:'Monthly content creation package.',stage:'New',score:70,budget:'£1,500/month'});
     await DB.insert('enquiries',{name:'David Brown',email:'david@example.com',source:'Referral',service:'Marketing',message:'Digital marketing strategy consultation.',stage:'Won',score:85,budget:'£4,000'});
+    
+    console.log('Enquiries loaded');
     
     // FINANCE - Income & Expenses
     await DB.insert('finance',{type:'income',category:'Project Payment',amount:8500,date:'2026-04-15',description:'Brand Campaign - Deposit',client:'Demo Client A',project:'Brand Campaign Project',status:'Paid'});
@@ -1735,11 +1758,15 @@ async function seedSampleData(){
     await DB.insert('finance',{type:'expense',category:'Freelancer',amount:650,date:'2026-04-18',description:'Videographer Day Rate',status:'Paid'});
     await DB.insert('finance',{type:'income',category:'Consultation',amount:1200,date:'2026-04-20',description:'Strategy Session',client:'Tech Startup Ltd',status:'Pending'});
     
+    console.log('Finance loaded');
+    
     // TEAM - 4 team members
     await DB.insert('team',{name:'Alex Johnson',role:'Creative Director',email:'alex@demo.com',phone:'+44 7700 900000',status:'Active',rate:650});
     await DB.insert('team',{name:'Sam Williams',role:'Photographer',email:'sam@demo.com',phone:'+44 7700 900001',status:'Active',rate:450});
     await DB.insert('team',{name:'Jordan Lee',role:'Designer',email:'jordan@demo.com',phone:'+44 7700 900002',status:'Active',rate:400});
     await DB.insert('team',{name:'Casey Brown',role:'Videographer',email:'casey@demo.com',phone:'+44 7700 900003',status:'Active',rate:500});
+    
+    console.log('Team loaded');
     
     // CONTACTS - Add to localStorage
     const contacts=[
@@ -1767,12 +1794,15 @@ async function seedSampleData(){
     ];
     localStorage.setItem('hq_goals',JSON.stringify(goals));
     
-    toast('Demo workspace loaded with sample data ✓','ok');
-    if(typeof renderDash==='function')renderDash();
+    console.log('All demo data loaded successfully');
+    toast('Demo workspace ready ✓','ok');
+    
+    return true;
+    
   }catch(e){
-    console.error(e);
+    console.error('Demo data load error:',e);
     toast('Demo running in local mode','ok');
-    localStorage.setItem('hq_demo_loaded','1');
+    return false;
   }
 }
 
