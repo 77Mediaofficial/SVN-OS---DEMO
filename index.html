@@ -596,6 +596,30 @@ select{
   <div id="loading-msg">Loading Studio OS…</div>
 </div>
 
+<!-- DEMO LANDING PAGE -->
+<div id="demo-landing" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0A0A0A 0%,#1A1A1A 100%);position:fixed;inset:0;z-index:99999">
+  <div style="text-align:center;max-width:600px;padding:40px">
+    <div style="font-family:'DM Serif Display',serif;font-size:72px;color:#fff;letter-spacing:3px;margin-bottom:16px">SVN OS</div>
+    <div style="font-size:24px;color:rgba(255,255,255,0.6);margin-bottom:40px;font-weight:300">Business Management Platform</div>
+    <div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;margin-bottom:32px">
+      <div style="font-size:16px;color:rgba(255,255,255,0.8);line-height:1.8;margin-bottom:24px">
+        Explore a complete business OS with projects, CRM, finance tracking, AI tools, and more—all running at £0/month.
+      </div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:24px">
+        ✓ Sample data pre-loaded<br>
+        ✓ All features unlocked<br>
+        ✓ No signup required
+      </div>
+    </div>
+    <button onclick="enterDemo()" style="background:#fff;color:#0A0A0A;border:none;padding:18px 48px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:transform 0.2s;box-shadow:0 8px 32px rgba(255,255,255,0.2)" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      Enter Demo →
+    </button>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:32px">
+      Want your own? <a href="mailto:SVN-77MEDIAOFFICIAL@OUTLOOK.COM" style="color:rgba(255,255,255,0.7);text-decoration:underline">Contact us</a>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
@@ -1002,17 +1026,45 @@ async function sbAuth(action,email,password,name=''){
 
 /* ── BOOT ── */
 async function boot(){
-  setLoading('Starting SVN Studio OS HQ…');
+  setLoading('Starting SVN Studio OS…');
   applyPrefs();loadAccent();
-  // Clear any saved session - require fresh login every time
-  localStorage.removeItem('sb_token');
-  localStorage.removeItem('sb_user');
-  localStorage.removeItem('sb_role');
-  const inv=new URLSearchParams(location.search).get('invite');
-  if(inv)await handleInviteLink(inv);
-  showAuth();
   hideLoading();
+  
+  // Show demo landing page
+  document.getElementById('demo-landing').style.display='flex';
 }
+
+function enterDemo(){
+  // Hide landing page
+  document.getElementById('demo-landing').style.display='none';
+  
+  // Set fake user session
+  window.CU={id:'demo-user',email:'demo@svn-studio.com'};
+  window.CU_ROLE='admin';
+  localStorage.setItem('demo_mode','1');
+  
+  // Enable demo mode
+  enableDemoMode();
+  
+  // Load app
+  hideAll();
+  document.getElementById('app').style.display='block';
+  
+  // Initialize app
+  applyPrefs();loadAccent();initAutoLock();applyCustomisation();
+  nav('dashboard');
+  setTimeout(renderTodayFocus,600);
+  setTimeout(initPushNotifications,2000);
+  
+  // Load sample data if not already loaded
+  if(!localStorage.getItem('hq_demo_loaded')){
+    setTimeout(()=>{
+      seedSampleData();
+      localStorage.setItem('hq_demo_loaded','1');
+    },1500);
+  }
+}
+
 function setLoading(msg){const l=document.getElementById('loading');if(l)l.style.display='flex';const m=document.getElementById('loading-msg');if(m)m.textContent=msg;}
 function hideLoading(){const l=document.getElementById('loading');if(l)l.style.display='none';}
 function hideAll(){['auth','client-portal','team-portal','app'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
@@ -1655,15 +1707,20 @@ async function importData(input){
 
 /* ── SEED DATA ── */
 async function seedSampleData(){
-  if(!confirm('Load sample data? This will add demo projects and enquiries.'))return;
   try{
-    await DB.insert('projects',{name:'Nike Airforce — Music Video',client:'Nike UK',type:'Music Video',status:'In Production',budget:8500,location:'South London',due_date:'2026-05-15',priority:'High',brief:'High energy music video for Nike Air Force launch campaign. Urban aesthetic, East London locations.'});
-    await DB.insert('projects',{name:'Adidas — Brand Campaign',client:'Adidas UK',type:'Brand Campaign',status:'Post Production',budget:12000,location:'Shoreditch',due_date:'2026-04-30',priority:'Urgent'});
-    await DB.insert('enquiries',{name:'Marcus Johnson',email:'marcus@label.com',source:'Instagram',service:'Music Video',message:'Looking for a director for my EP launch visual. Budget around £5k.',stage:'New',score:80});
-    await DB.insert('enquiries',{name:'Zara Williams',email:'zara@brand.co',source:'Referral',service:'Brand Campaign',message:'Need a full brand campaign shoot for Spring/Summer collection.',stage:'Contacted',score:90});
-    toast('Sample data loaded ✓','ok');
-    renderDash();
-  }catch(e){console.error(e);toast('Error loading sample data: ' + e.message,'err');}
+    // Clean demo data - no real companies or people
+    await DB.insert('projects',{name:'Brand Campaign Project',client:'Demo Client A',type:'Brand Campaign',status:'In Production',budget:8500,location:'London',due_date:'2026-05-15',priority:'High',brief:'High-end brand campaign for product launch. Urban aesthetic, clean visuals.'});
+    await DB.insert('projects',{name:'Content Creation Package',client:'Demo Client B',type:'Social Content',status:'Post Production',budget:3500,location:'Remote',due_date:'2026-04-30',priority:'Medium'});
+    await DB.insert('enquiries',{name:'Sarah Johnson',email:'demo@example.com',source:'Instagram',service:'Photography',message:'Looking for professional photography services for our product launch.',stage:'New',score:80});
+    await DB.insert('enquiries',{name:'Michael Chen',email:'demo2@example.com',source:'Referral',service:'Video Production',message:'Need a promotional video for our website.',stage:'Contacted',score:90});
+    toast('Demo data loaded ✓','ok');
+    if(typeof renderDash==='function')renderDash();
+  }catch(e){
+    console.error(e);
+    toast('Note: Demo runs in local mode','ok');
+    // Still mark as loaded so we don't try again
+    localStorage.setItem('hq_demo_loaded','1');
+  }
 }
 
 /* ── ONBOARDING ── */
@@ -1780,28 +1837,22 @@ function enableDemoMode(){
   const banner=document.getElementById('demo-banner');
   if(banner){
     banner.innerHTML=`
-      <div style="background:linear-gradient(135deg,#D97706,#DC2626);color:#fff;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 4px 12px rgba(217,119,6,0.3)">
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:15px;margin-bottom:4px">🎯 DEMO MODE</div>
-          <div style="font-size:13px;opacity:0.95">Exploring SVN Studio OS with sample data. Changes won't be saved. Ready to start? <a href="/" style="color:#fff;text-decoration:underline;font-weight:600">Create your account</a></div>
+      <div style="background:linear-gradient(135deg,#D97706,#F59E0B);color:#fff;border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 4px 12px rgba(217,119,6,0.3)">
+        <div style="flex:1;display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">🎯</div>
+          <div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:2px">DEMO MODE</div>
+            <div style="font-size:13px;opacity:0.95">Exploring with sample data · Want your own? <a href="mailto:SVN-77MEDIAOFFICIAL@OUTLOOK.COM" style="color:#fff;text-decoration:underline;font-weight:600">Get in touch</a></div>
+          </div>
         </div>
-        <button onclick="this.parentElement.parentElement.remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">Got it</button>
       </div>
     `;
   }
   
-  // Load demo data automatically
-  setTimeout(()=>{
-    if(!localStorage.getItem('hq_demo_loaded')){
-      seedSampleData();
-      localStorage.setItem('hq_demo_loaded','1');
-    }
-  },2000);
-  
   // Show demo badge in sidebar
   const logo=document.querySelector('.sb-logo-sub');
   if(logo){
-    logo.innerHTML='Demo Mode · Explore Freely';
+    logo.innerHTML='Demo Version · Try All Features';
     logo.style.color='#D97706';
   }
 }
