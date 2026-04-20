@@ -1847,8 +1847,8 @@ function hideOfflineBanner(){
 }
 
 // Enhanced DB wrapper with error handling
-const DBOriginal=DB;
-const DB={
+const DB_ORIGINAL={...DB}; // Save original
+Object.assign(DB, {
   async get(table){
     try{
       if(!isOnline){
@@ -1857,7 +1857,7 @@ const DB={
         if(cached)return JSON.parse(cached);
         throw new Error('Offline and no cached data');
       }
-      const result=await DBOriginal.get(table);
+      const result=await DB_ORIGINAL.get(table);
       // Cache successful results
       localStorage.setItem(`hq_cache_${table}`,JSON.stringify(result));
       dbErrors=0; // Reset on success
@@ -1892,7 +1892,7 @@ const DB={
         localStorage.setItem('hq_pending_inserts',JSON.stringify(queue));
         return {id:'temp_'+Date.now(),...data};
       }
-      const result=await DBOriginal.insert(table,data);
+      const result=await DB_ORIGINAL.insert(table,data);
       dbErrors=0;
       return result;
     }catch(e){
@@ -1909,7 +1909,7 @@ const DB={
         toast('Offline - changes won\'t sync','warn');
         return;
       }
-      const result=await DBOriginal.update(table,id,data);
+      const result=await DB_ORIGINAL.update(table,id,data);
       dbErrors=0;
       return result;
     }catch(e){
@@ -1926,7 +1926,7 @@ const DB={
         toast('Cannot delete while offline','err');
         return;
       }
-      const result=await DBOriginal.delete(table,id);
+      const result=await DB_ORIGINAL.delete(table,id);
       dbErrors=0;
       return result;
     }catch(e){
@@ -1936,7 +1936,7 @@ const DB={
       throw e;
     }
   }
-};
+});
 
 function showDatabaseErrorModal(){
   const modal=`
@@ -1974,7 +1974,7 @@ window.addEventListener('online',async()=>{
     toast(`Syncing ${queue.length} pending changes...`,'ok');
     for(const item of queue){
       try{
-        await DBOriginal.insert(item.table,item.data);
+        await DB_ORIGINAL.insert(item.table,item.data);
       }catch(e){
         console.error('Sync failed:',e);
       }
@@ -2162,10 +2162,10 @@ function updateLastBackupDisplay(){
 async function manualBackup(isAuto=false){
   try{
     const[P,E,T,A]=await Promise.all([
-      DBOriginal.get('projects'),
-      DBOriginal.get('enquiries'),
-      DBOriginal.get('team'),
-      DBOriginal.get('assets').catch(()=>[])
+      DB_ORIGINAL.get('projects'),
+      DB_ORIGINAL.get('enquiries'),
+      DB_ORIGINAL.get('team'),
+      DB_ORIGINAL.get('assets').catch(()=>[])
     ]);
     
     const local={
