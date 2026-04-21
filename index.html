@@ -1724,86 +1724,85 @@ async function importData(input){
 
 /* ── SEED DATA ── */
 async function seedSampleData(){
-  console.log('Loading demo data...');
+  console.log('Loading demo data (localStorage only)...');
   
-  try{
-    // PROJECTS - 8 diverse projects
-    await DB.insert('projects',{name:'Brand Campaign Project',client:'Demo Client A',type:'Brand Campaign',status:'In Production',budget:8500,location:'London',due_date:'2026-05-15',priority:'High',brief:'High-end brand campaign for product launch. Urban aesthetic, clean visuals.',progress:65});
-    await DB.insert('projects',{name:'Content Creation Package',client:'Demo Client B',type:'Social Content',status:'Post Production',budget:3500,location:'Remote',due_date:'2026-04-30',priority:'Medium',progress:85});
-    await DB.insert('projects',{name:'Website Redesign',client:'Tech Startup Ltd',type:'Web Design',status:'Briefing',budget:12000,location:'Remote',due_date:'2026-06-01',priority:'High',progress:20});
-    await DB.insert('projects',{name:'Product Photography',client:'E-commerce Co',type:'Photography',status:'Completed',budget:2500,location:'Studio',due_date:'2026-04-01',priority:'Low',progress:100});
-    await DB.insert('projects',{name:'Social Media Strategy',client:'Fashion Brand',type:'Marketing',status:'In Production',budget:4500,location:'London',due_date:'2026-05-20',priority:'Medium',progress:45});
-    await DB.insert('projects',{name:'Video Production',client:'Corporate Client',type:'Video',status:'Pre-Production',budget:15000,location:'Manchester',due_date:'2026-06-15',priority:'Urgent',progress:15});
-    await DB.insert('projects',{name:'Logo Redesign',client:'Startup XYZ',type:'Branding',status:'Briefing',budget:1800,location:'Remote',due_date:'2026-05-10',priority:'Medium',progress:10});
-    await DB.insert('projects',{name:'Annual Report Design',client:'Finance Corp',type:'Print Design',status:'In Production',budget:6500,location:'Remote',due_date:'2026-05-25',priority:'High',progress:55});
-    
-    console.log('Projects loaded');
-    
-    // ENQUIRIES - 6 leads at different stages
-    await DB.insert('enquiries',{name:'Sarah Johnson',email:'sarah@example.com',source:'Instagram',service:'Photography',message:'Looking for professional photography services for our product launch.',stage:'New',score:80,budget:'£2,000-3,000'});
-    await DB.insert('enquiries',{name:'Michael Chen',email:'michael@example.com',source:'Referral',service:'Video Production',message:'Need a promotional video for our website.',stage:'Contacted',score:90,budget:'£5,000-8,000'});
-    await DB.insert('enquiries',{name:'Emma Williams',email:'emma@example.com',source:'Website',service:'Brand Campaign',message:'Interested in a full rebrand and campaign.',stage:'Quoted',score:95,budget:'£10,000+'});
-    await DB.insert('enquiries',{name:'James Taylor',email:'james@example.com',source:'LinkedIn',service:'Web Design',message:'E-commerce site redesign needed.',stage:'Contacted',score:75,budget:'£8,000-12,000'});
-    await DB.insert('enquiries',{name:'Lucy Martinez',email:'lucy@example.com',source:'Instagram',service:'Social Content',message:'Monthly content creation package.',stage:'New',score:70,budget:'£1,500/month'});
-    await DB.insert('enquiries',{name:'David Brown',email:'david@example.com',source:'Referral',service:'Marketing',message:'Digital marketing strategy consultation.',stage:'Won',score:85,budget:'£4,000'});
-    
-    console.log('Enquiries loaded');
-    
-    // FINANCE - Income & Expenses
-    await DB.insert('finance',{type:'income',category:'Project Payment',amount:8500,date:'2026-04-15',description:'Brand Campaign - Deposit',client:'Demo Client A',project:'Brand Campaign Project',status:'Paid'});
-    await DB.insert('finance',{type:'income',category:'Project Payment',amount:3500,date:'2026-04-10',description:'Content Package - Full Payment',client:'Demo Client B',project:'Content Creation Package',status:'Paid'});
-    await DB.insert('finance',{type:'income',category:'Project Payment',amount:2500,date:'2026-04-01',description:'Product Photography - Final',client:'E-commerce Co',project:'Product Photography',status:'Paid'});
-    await DB.insert('finance',{type:'expense',category:'Equipment',amount:850,date:'2026-04-12',description:'Camera Lens Purchase',status:'Paid'});
-    await DB.insert('finance',{type:'expense',category:'Software',amount:120,date:'2026-04-01',description:'Adobe Creative Cloud - Monthly',status:'Paid'});
-    await DB.insert('finance',{type:'expense',category:'Freelancer',amount:650,date:'2026-04-18',description:'Videographer Day Rate',status:'Paid'});
-    await DB.insert('finance',{type:'income',category:'Consultation',amount:1200,date:'2026-04-20',description:'Strategy Session',client:'Tech Startup Ltd',status:'Pending'});
-    
-    console.log('Finance loaded');
-    
-    // TEAM - 4 team members
-    await DB.insert('team',{name:'Alex Johnson',role:'Creative Director',email:'alex@demo.com',phone:'+44 7700 900000',status:'Active',rate:650});
-    await DB.insert('team',{name:'Sam Williams',role:'Photographer',email:'sam@demo.com',phone:'+44 7700 900001',status:'Active',rate:450});
-    await DB.insert('team',{name:'Jordan Lee',role:'Designer',email:'jordan@demo.com',phone:'+44 7700 900002',status:'Active',rate:400});
-    await DB.insert('team',{name:'Casey Brown',role:'Videographer',email:'casey@demo.com',phone:'+44 7700 900003',status:'Active',rate:500});
-    
-    console.log('Team loaded');
-    
-    // CONTACTS - Add to localStorage
-    const contacts=[
-      {id:'c1',name:'Sarah Johnson',email:'sarah@example.com',company:'Tech Co',tags:['Client','Active'],notes:'Product photography client'},
-      {id:'c2',name:'Michael Chen',email:'michael@example.com',company:'Startup Inc',tags:['Lead','High Priority'],notes:'Interested in video production'},
-      {id:'c3',name:'Emma Williams',email:'emma@example.com',company:'Fashion Brand',tags:['Client','VIP'],notes:'Long-term retainer client'},
-      {id:'c4',name:'James Taylor',email:'james@example.com',company:'E-commerce Ltd',tags:['Lead'],notes:'Website redesign enquiry'},
-      {id:'c5',name:'Lucy Martinez',email:'lucy@example.com',company:'Marketing Agency',tags:['Partner'],notes:'Referral partner'}
-    ];
-    localStorage.setItem('hq_contacts',JSON.stringify(contacts));
-    
-    // NOTES - Add to localStorage
-    const notes=[
-      {id:'n1',title:'Client Meeting - Demo Client A',content:'Discussed campaign direction. Client wants urban aesthetic. Budget approved.',date:'2026-04-18',tags:['Meeting','Important']},
-      {id:'n2',title:'Production Notes - Video Project',content:'Location scouted. Need to book crew for May 15th. Camera rental confirmed.',date:'2026-04-17',tags:['Production']},
-      {id:'n3',title:'Ideas - Summer Campaign',content:'Beach theme, sunset shots, minimal copy. Focus on lifestyle imagery.',date:'2026-04-15',tags:['Ideas']}
-    ];
-    localStorage.setItem('hq_notes',JSON.stringify(notes));
-    
-    // GOALS - Add to localStorage
-    const goals=[
-      {id:'g1',title:'Q2 Revenue Target',description:'Reach £50,000 revenue by end of Q2',target:50000,current:23500,deadline:'2026-06-30',status:'In Progress'},
-      {id:'g2',title:'New Client Acquisition',description:'Onboard 5 new clients this quarter',target:5,current:2,deadline:'2026-06-30',status:'In Progress'},
-      {id:'g3',title:'Portfolio Expansion',description:'Complete 10 case studies for portfolio',target:10,current:4,deadline:'2026-07-31',status:'In Progress'}
-    ];
-    localStorage.setItem('hq_goals',JSON.stringify(goals));
-    
-    console.log('All demo data loaded successfully');
-    toast('Demo workspace ready ✓','ok');
-    
-    return true;
-    
-  }catch(e){
-    console.error('Demo data load error:',e);
-    toast('Demo running in local mode','ok');
-    return false;
-  }
+  // Store everything in localStorage for demo mode
+  
+  // PROJECTS - 8 diverse projects
+  const projects=[
+    {id:'p1',name:'Brand Campaign Project',client:'Demo Client A',type:'Brand Campaign',status:'In Production',budget:8500,location:'London',due_date:'2026-05-15',priority:'High',brief:'High-end brand campaign for product launch. Urban aesthetic, clean visuals.',progress:65,created_at:new Date().toISOString()},
+    {id:'p2',name:'Content Creation Package',client:'Demo Client B',type:'Social Content',status:'Post Production',budget:3500,location:'Remote',due_date:'2026-04-30',priority:'Medium',progress:85,created_at:new Date().toISOString()},
+    {id:'p3',name:'Website Redesign',client:'Tech Startup Ltd',type:'Web Design',status:'Briefing',budget:12000,location:'Remote',due_date:'2026-06-01',priority:'High',progress:20,created_at:new Date().toISOString()},
+    {id:'p4',name:'Product Photography',client:'E-commerce Co',type:'Photography',status:'Completed',budget:2500,location:'Studio',due_date:'2026-04-01',priority:'Low',progress:100,created_at:new Date().toISOString()},
+    {id:'p5',name:'Social Media Strategy',client:'Fashion Brand',type:'Marketing',status:'In Production',budget:4500,location:'London',due_date:'2026-05-20',priority:'Medium',progress:45,created_at:new Date().toISOString()},
+    {id:'p6',name:'Video Production',client:'Corporate Client',type:'Video',status:'Pre-Production',budget:15000,location:'Manchester',due_date:'2026-06-15',priority:'Urgent',progress:15,created_at:new Date().toISOString()},
+    {id:'p7',name:'Logo Redesign',client:'Startup XYZ',type:'Branding',status:'Briefing',budget:1800,location:'Remote',due_date:'2026-05-10',priority:'Medium',progress:10,created_at:new Date().toISOString()},
+    {id:'p8',name:'Annual Report Design',client:'Finance Corp',type:'Print Design',status:'In Production',budget:6500,location:'Remote',due_date:'2026-05-25',priority:'High',progress:55,created_at:new Date().toISOString()}
+  ];
+  localStorage.setItem('hq_demo_projects',JSON.stringify(projects));
+  
+  // ENQUIRIES - 6 leads at different stages
+  const enquiries=[
+    {id:'e1',name:'Sarah Johnson',email:'sarah@example.com',source:'Instagram',service:'Photography',message:'Looking for professional photography services for our product launch.',stage:'New',score:80,budget:'£2,000-3,000',created_at:new Date().toISOString()},
+    {id:'e2',name:'Michael Chen',email:'michael@example.com',source:'Referral',service:'Video Production',message:'Need a promotional video for our website.',stage:'Contacted',score:90,budget:'£5,000-8,000',created_at:new Date().toISOString()},
+    {id:'e3',name:'Emma Williams',email:'emma@example.com',source:'Website',service:'Brand Campaign',message:'Interested in a full rebrand and campaign.',stage:'Quoted',score:95,budget:'£10,000+',created_at:new Date().toISOString()},
+    {id:'e4',name:'James Taylor',email:'james@example.com',source:'LinkedIn',service:'Web Design',message:'E-commerce site redesign needed.',stage:'Contacted',score:75,budget:'£8,000-12,000',created_at:new Date().toISOString()},
+    {id:'e5',name:'Lucy Martinez',email:'lucy@example.com',source:'Instagram',service:'Social Content',message:'Monthly content creation package.',stage:'New',score:70,budget:'£1,500/month',created_at:new Date().toISOString()},
+    {id:'e6',name:'David Brown',email:'david@example.com',source:'Referral',service:'Marketing',message:'Digital marketing strategy consultation.',stage:'Won',score:85,budget:'£4,000',created_at:new Date().toISOString()}
+  ];
+  localStorage.setItem('hq_demo_enquiries',JSON.stringify(enquiries));
+  
+  // FINANCE - Income & Expenses
+  const finance=[
+    {id:'f1',type:'income',category:'Project Payment',amount:8500,date:'2026-04-15',description:'Brand Campaign - Deposit',client:'Demo Client A',project:'Brand Campaign Project',status:'Paid'},
+    {id:'f2',type:'income',category:'Project Payment',amount:3500,date:'2026-04-10',description:'Content Package - Full Payment',client:'Demo Client B',project:'Content Creation Package',status:'Paid'},
+    {id:'f3',type:'income',category:'Project Payment',amount:2500,date:'2026-04-01',description:'Product Photography - Final',client:'E-commerce Co',project:'Product Photography',status:'Paid'},
+    {id:'f4',type:'expense',category:'Equipment',amount:850,date:'2026-04-12',description:'Camera Lens Purchase',status:'Paid'},
+    {id:'f5',type:'expense',category:'Software',amount:120,date:'2026-04-01',description:'Adobe Creative Cloud - Monthly',status:'Paid'},
+    {id:'f6',type:'expense',category:'Freelancer',amount:650,date:'2026-04-18',description:'Videographer Day Rate',status:'Paid'},
+    {id:'f7',type:'income',category:'Consultation',amount:1200,date:'2026-04-20',description:'Strategy Session',client:'Tech Startup Ltd',status:'Pending'}
+  ];
+  localStorage.setItem('hq_demo_finance',JSON.stringify(finance));
+  
+  // TEAM - 4 team members
+  const team=[
+    {id:'t1',name:'Alex Johnson',role:'Creative Director',email:'alex@demo.com',phone:'+44 7700 900000',status:'Active',rate:650},
+    {id:'t2',name:'Sam Williams',role:'Photographer',email:'sam@demo.com',phone:'+44 7700 900001',status:'Active',rate:450},
+    {id:'t3',name:'Jordan Lee',role:'Designer',email:'jordan@demo.com',phone:'+44 7700 900002',status:'Active',rate:400},
+    {id:'t4',name:'Casey Brown',role:'Videographer',email:'casey@demo.com',phone:'+44 7700 900003',status:'Active',rate:500}
+  ];
+  localStorage.setItem('hq_demo_team',JSON.stringify(team));
+  
+  // CONTACTS
+  const contacts=[
+    {id:'c1',name:'Sarah Johnson',email:'sarah@example.com',company:'Tech Co',tags:['Client','Active'],notes:'Product photography client'},
+    {id:'c2',name:'Michael Chen',email:'michael@example.com',company:'Startup Inc',tags:['Lead','High Priority'],notes:'Interested in video production'},
+    {id:'c3',name:'Emma Williams',email:'emma@example.com',company:'Fashion Brand',tags:['Client','VIP'],notes:'Long-term retainer client'},
+    {id:'c4',name:'James Taylor',email:'james@example.com',company:'E-commerce Ltd',tags:['Lead'],notes:'Website redesign enquiry'},
+    {id:'c5',name:'Lucy Martinez',email:'lucy@example.com',company:'Marketing Agency',tags:['Partner'],notes:'Referral partner'}
+  ];
+  localStorage.setItem('hq_contacts',JSON.stringify(contacts));
+  
+  // NOTES
+  const notes=[
+    {id:'n1',title:'Client Meeting - Demo Client A',content:'Discussed campaign direction. Client wants urban aesthetic. Budget approved.',date:'2026-04-18',tags:['Meeting','Important']},
+    {id:'n2',title:'Production Notes - Video Project',content:'Location scouted. Need to book crew for May 15th. Camera rental confirmed.',date:'2026-04-17',tags:['Production']},
+    {id:'n3',title:'Ideas - Summer Campaign',content:'Beach theme, sunset shots, minimal copy. Focus on lifestyle imagery.',date:'2026-04-15',tags:['Ideas']}
+  ];
+  localStorage.setItem('hq_notes',JSON.stringify(notes));
+  
+  // GOALS
+  const goals=[
+    {id:'g1',title:'Q2 Revenue Target',description:'Reach £50,000 revenue by end of Q2',target:50000,current:23500,deadline:'2026-06-30',status:'In Progress'},
+    {id:'g2',title:'New Client Acquisition',description:'Onboard 5 new clients this quarter',target:5,current:2,deadline:'2026-06-30',status:'In Progress'},
+    {id:'g3',title:'Portfolio Expansion',description:'Complete 10 case studies for portfolio',target:10,current:4,deadline:'2026-07-31',status:'In Progress'}
+  ];
+  localStorage.setItem('hq_goals',JSON.stringify(goals));
+  
+  console.log('✓ All demo data loaded to localStorage');
+  toast('Demo workspace ready ✓','ok');
+  
+  return true;
 }
 
 /* ── ONBOARDING ── */
@@ -1985,6 +1984,17 @@ const DB_ORIGINAL={...DB}; // Save original
 Object.assign(DB, {
   async get(table){
     try{
+      // DEMO MODE: Read from localStorage instead of Supabase
+      if(localStorage.getItem('demo_mode')==='1'){
+        const demoData=localStorage.getItem(`hq_demo_${table}`);
+        if(demoData){
+          console.log(`Demo mode: returning ${table} from localStorage`);
+          return JSON.parse(demoData);
+        }
+        console.log(`Demo mode: no data for ${table}`);
+        return [];
+      }
+      
       if(!isOnline){
         // Fallback to localStorage in offline mode
         const cached=localStorage.getItem(`hq_cache_${table}`);
